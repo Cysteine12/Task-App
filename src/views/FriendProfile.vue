@@ -49,9 +49,18 @@
                 <button v-else-if="!showFollowButton" @click.prevent="unfollowUser(user._id)" class="btn btn-success btn-user btn-block">
                     {{ followButton }}
                 </button>
-                <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-user btn-block">
-                    View User Timeline
-                </router-link>
+                <div class="my-2 row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <router-link :to="'/chat/' + user._id" class="btn btn-primary btn-user btn-block">
+                            Message
+                        </router-link>
+                    </div>
+                    <div class="col-sm-6">
+                        <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-user btn-block">
+                            View Timeline
+                        </router-link>
+                    </div>
+                </div>
               </div>
           </div>
 
