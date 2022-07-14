@@ -6,6 +6,10 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
+  "engines": {
+    "npm": ">=8.5.5",
+    "node": ">=16.15.0"
+  },
   "dependencies": {
     "axios": "^0.25.0",
     "core-js": "^3.6.5",
