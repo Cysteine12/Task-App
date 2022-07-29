@@ -24,8 +24,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <input type="text" v-model="form.notes" class="form-control form-control-user" id="exampleInputEmail"
-                                placeholder="Your Notes" required>
+                            <textarea v-model="form.notes" rows="6" placeholder="Your Notes" class="form-control" required>
+                            </textarea>
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-6 mb-3 mb-sm-0">
@@ -58,6 +58,7 @@ import Post from '@/components/Post.vue'
 import { onMounted } from '@vue/runtime-core'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 export default {
  name: 'Home',
@@ -83,11 +84,12 @@ export default {
     })
 
     const store = useStore()
+    const router = useRouter()
 
     onMounted(async () => {
       await store.dispatch('getPost', props.id)
 
-      postCheck.value.status = await store.getters.authState
+      postCheck.value.status = await store.getters.getPostState
       form.value = await store.getters.post
     })
 
@@ -100,7 +102,10 @@ export default {
         const res = await store.dispatch('updatePost', form.value)
   
         if (res.success === true) {
-          postCheck.value.status = res.msg
+          postCheck.value.status = res.msg + ' Redirecting..'
+          setTimeout(() => {
+            router.go(-1)
+          }, 3000)
         } else {
           postCheck.value.status = await store.getters.authState
           postCheck.value.err = res.err

@@ -14,10 +14,10 @@ const getters = {
 }
 
 const actions = {
-    async getPostsByOwner({ commit }, ownerId) {
+    async getPostsByOwner({ commit }, data) {
         commit('posts_request')
         try {
-            const res = await axios.get(`${API}/api/post/owner/${ownerId}`)
+            const res = await axios.get(`${API}/api/post/owner/${data.userId}/${data.pageId}`)
             if (res.data.success) {
 
                 commit('posts_success', res.data.data)

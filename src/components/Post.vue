@@ -3,16 +3,16 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div>
-                    <img class="home-img rounded-circle float-start" src="img/undraw_profile.svg">
+                    <img class="home-img rounded-circle float-start" :src="post.user.photo">
                     <span class="my-0 mx-3 font-weight-bold text-primary inline text-start">
                         <router-link 
-                            :to="'/user/profile/' + post.userId" 
+                            :to="`/user/profile/${post.userId}`" 
                             v-if="post.userId != user._id"
                         >
-                            {{ post.name }}
+                            {{ post.user.name }}
                         </router-link>
                         <span v-else>
-                            {{ post.name }}
+                            {{ post.user.name }}
                         </span>
                     </span>
                 </div>
@@ -27,7 +27,7 @@
                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                         aria-labelledby="dropdownMenuLink">
                         <div class="dropdown-header">Manage Post:</div>
-                        <router-link :to="'/post/edit/' + post._id" class="dropdown-item">Edit Post</router-link>
+                        <router-link :to="`/post/edit/${post._id}`" class="dropdown-item">Edit Post</router-link>
                         <button @click.prevent="deletePost(post._id)" class="dropdown-item">Delete Post</button>
                     </div>
                 </div>
@@ -41,18 +41,24 @@
                 <span class="my-0 mx-3 font-weight-bold inline text-start">{{ post.teacher}}</span>
                 <br>
                 <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Deadline: </span>
-                <span class="my-0 mx-3 font-weight-bold inline text-start">{{ post.deadline}}</span>
+                <span class="my-0 mx-3 font-weight-bold inline text-start">{{ getTime(post.deadline) }} | {{ getDate(post.deadline) }}</span>
                 
             </div>
-            <div v-if="showbutton" class="card-footer">
-                <button @click.prevent="saveEvent(post._id)" href="#" class="btn btn-primary btn-user btn-block">
-                    {{ eventButton }}
-                </button>
-            </div>
-            <div v-if="showbutton2" class="card-footer">
-                <button @click.prevent="unsaveEvent(post._id)" href="#" class="btn btn-primary btn-user btn-block">
-                    {{ eventButton2 }}
-                </button>
+            <div class="card-footer d-flex flex-row align-items-center justify-content-between">
+                <div v-if="showbutton" class="">
+                    <button @click.prevent="saveEvent(post._id)" href="#" class="btn btn-primary btn-user">
+                        {{ eventButton }}
+                    </button>
+                </div>
+                <div v-if="showbutton2" class="">
+                    <button @click.prevent="unsaveEvent(post._id)" href="#" class="btn btn-primary btn-user">
+                        {{ eventButton2 }}
+                    </button>
+                </div>
+                <div>
+                    <div class="my-0 mx-0 font-small"> {{ getTime(post.createdAt) }}</div>
+                    <div class="my-0 mx-0 font-small"> {{ getDate(post.createdAt) }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -136,6 +142,15 @@ export default {
         }
     }
 
+    const getDate = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(0, 15)
+    }
+    const getTime = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(16, 21)
+    }
+
 
     return {
         user,
@@ -144,8 +159,16 @@ export default {
         eventButton,
         eventButton2,
         deletePost,
-        postCheck
+        postCheck,
+        getDate,
+        getTime
     }
   }
 }
 </script>
+
+<style scoped>
+.font-small {
+  font-size: 10px;
+}
+</style>

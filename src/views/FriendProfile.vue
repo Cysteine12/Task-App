@@ -4,64 +4,52 @@
     <div class="row">
       <div class="col-xl-8 col-lg-7">
 
-          <!-- Illustrations -->
-          <div v-if="user" class="card shadow mb-4">
-              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">My Profile Details</h6>
+          <div v-if="user" class="profile-container d-flex justify-content-center align-items-center">
+            <div class="profile-card">
+              <div class="upper">
+                <img src="/img/Desert.jpg" class="img-fluid">
               </div>
-              <div class="card-body">
+
+              <div class="user text-center">
+                <div class="profile">
+                  <img :src="user.photo" class="rounded-circle" width="80">
+                </div>
+              </div>
+
+              <div class="mt-5 text-center">
+                <h4 class="mb-0">{{ user.name }}</h4>
+                <span class="text-muted d-block mb-2">{{ user.email }}</span>
+                <span class="text-muted d-block mb-2">{{ user.phone }}</span>
+                <button v-if="showFollowButton" @click.prevent="followUser(user._id)" class="btn btn-success btn-sm mr-2 shadow">
+                    {{ followButton }}
+                </button>
+                <button v-else-if="!showFollowButton" @click.prevent="unfollowUser(user._id)" class="btn btn-success btn-sm mr-2 shadow">
+                    {{ followButton }}
+                </button>
+                
+                <div class="d-flex justify-content-center align-items-center my-4 px-4">
+
+                  <router-link :to="`/followers/${user._id}`" class="stats mx-2">
+                    <h6 class="mb-0">Followers</h6>
+                    <span>{{ user.follower.length }}</span>
+                  </router-link>
+                  <router-link :to="`/followings/${user._id}`" class="stats mx-2">
+                    <h6 class="mb-0">Following</h6>
+                    <span>{{ user.following.length }}</span>
+                  </router-link>
+
+                </div>
+                <div class="my-2">
+                  <router-link :to="'/chat/' + user._id" class="btn btn-primary btn-sm mr-2 shadow">
+                      Message
+                  </router-link>
+                  <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-sm shadow">
+                      View Timeline
+                  </router-link>
+                </div>
                 <StatCheck v-if="statCheck" :statCheck="statCheck" />
-                <div class="p-4">
-                    <div>
-                        <img :src="user.photo" alt="" class="img">
-                    </div>
-                    <div class="p-2">
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Profile Name: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ user.name }}</span>
-                        <br>
-                    </div>
-                    <div class="p-2">
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Email: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ user.email }}</span>
-                        <br>
-                    </div>
-                    <div class="p-2">
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Phone: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ user.phone }}</span>
-                        <br>
-                    </div>
-                    <div class="p-2">
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Followers: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ user.follower.length }}</span>
-                        <br>
-                    </div>
-                    <div class="p-2">
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">Following: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ user.following.length }}</span>
-                        <br>
-                    </div>
-                </div>
               </div>
-              <div class="card-footer">
-                <button v-if="showFollowButton" @click.prevent="followUser(user._id)" class="btn btn-success btn-user btn-block">
-                    {{ followButton }}
-                </button>
-                <button v-else-if="!showFollowButton" @click.prevent="unfollowUser(user._id)" class="btn btn-success btn-user btn-block">
-                    {{ followButton }}
-                </button>
-                <div class="my-2 row">
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                        <router-link :to="'/chat/' + user._id" class="btn btn-primary btn-user btn-block">
-                            Message
-                        </router-link>
-                    </div>
-                    <div class="col-sm-6">
-                        <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-user btn-block">
-                            View Timeline
-                        </router-link>
-                    </div>
-                </div>
-              </div>
+            </div>
           </div>
 
       </div>
@@ -78,7 +66,7 @@ import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
- name: 'Home',
+ name: 'FriendProfile',
   components: {
     MainLayout,
     StatCheck,
@@ -87,7 +75,7 @@ export default {
   setup(props) {
 
     const user = ref(null)
-    const followButton = ref('Follow User')
+    const followButton = ref('Follow')
     const showFollowButton = ref(true)
     const statCheck = ref({
       status: '',
@@ -111,7 +99,7 @@ export default {
         const res = await store.dispatch('followUser', data)
         if (res.success) {
             statCheck.value.status = res.msg
-            followButton.value = 'Unfollow User'
+            followButton.value = 'Unfollow'
             showFollowButton.value = false
         } else {
             followButton.value = res.err
@@ -127,7 +115,7 @@ export default {
         const res = await store.dispatch('followUser', data)
         if (res.success) {
             statCheck.value.status = res.msg
-            followButton.value = 'Follow User'
+            followButton.value = 'Follow'
             showFollowButton.value = true
         } else {
             followButton.value = res.err
@@ -155,4 +143,70 @@ export default {
 		display: flex;
 		margin: 0 auto;
 }
+/* 
+.profile-container{
+height: 100vh;
+} */
+
+.profile-card{
+
+width: 380px;
+border: none;
+border-radius: 15px;
+box-shadow: 0px 4px 10px gray;
+padding: 8px;
+background-color: #fff;
+position: relative;
+}
+
+.upper{
+
+height: 100px;
+
+}
+
+.upper img{
+
+width: 100%;
+border-top-left-radius: 10px;
+border-top-right-radius: 10px;
+
+}
+
+.user{
+position: relative;
+}
+
+.profile img{
+height: 80px;
+width: 80px;
+margin-top:2px;
+box-shadow: 0px 4px 10px gray;
+}
+
+.profile{
+
+position: absolute;
+top:-50px;
+left: 38%;
+height: 90px;
+width: 90px;
+border:3px solid #fff;
+
+border-radius: 50%;
+
+}
+
+.btn{
+
+border-radius: 5px;
+padding-left: 15px;
+padding-right: 15px;
+}
+
+.stats span{
+
+font-size: 29px;
+}
+
 </style>

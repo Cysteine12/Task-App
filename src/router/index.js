@@ -4,9 +4,10 @@ import Home from '../views/Home.vue'
 
 const routes = [
   {
-    path: '/',
+    path: '/:pageId?',
     name: 'Home',
     component: Home,
+    props: (route) => ({ pageId: Number.parseInt(route.params.pageId, 10)  || 1 }),
     meta: {
       ensureAuth: true
     }
@@ -28,9 +29,26 @@ const routes = [
     }
   },
   {
-    path: '/dashboard',
+    path: '/profile/edit-photo',
+    name: 'Edit-Photo',
+    component: () => import('../views/User/EditPhoto.vue'),
+    meta: {
+      ensureAuth: true
+    }
+  },
+  {
+    path: '/dashboard/:pageId?',
     name: 'Dashboard',
     component: () => import('../views/Dashboard.vue'),
+    props: (route) => ({ pageId: Number.parseInt(route.params.pageId, 10)  || 1 }),
+    meta: {
+      ensureAuth: true
+    }
+  },
+  {
+    path: '/post/create',
+    name: 'Create-Post',
+    component: () => import('../views/Post/Create.vue'),
     meta: {
       ensureAuth: true
     }
@@ -45,9 +63,28 @@ const routes = [
     }
   },
   {
-    path: '/my-events',
+    path: '/my-events/:pageId?',
     name: 'Events',
     component: () => import('../views/User/Events.vue'),
+    props: (route) => ({ pageId: Number.parseInt(route.params.pageId, 10)  || 1 }),
+    meta: {
+      ensureAuth: true
+    }
+  },
+  {
+    path: '/followers/:userId',
+    name: 'Followers',
+    component: () => import('../views/User/Followers.vue'),
+    props: true,
+    meta: {
+      ensureAuth: true
+    }
+  },
+  {
+    path: '/followings/:userId',
+    name: 'Followings',
+    component: () => import('../views/User/Followings.vue'),
+    props: true,
     meta: {
       ensureAuth: true
     }
@@ -56,15 +93,6 @@ const routes = [
     path: '/my-notifications',
     name: 'Notification',
     component: () => import('../views/Notification.vue'),
-    meta: {
-      ensureAuth: true
-    }
-  },
-  {
-    path: '/user/profile/:id',
-    name: 'FriendProfile',
-    component: () => import('../views/FriendProfile.vue'),
-    props: true,
     meta: {
       ensureAuth: true
     }
@@ -87,10 +115,30 @@ const routes = [
     }
   },
   {
-    path: '/user/timeline/:id',
+    path: '/user/profile/:id',
+    name: 'FriendProfile',
+    component: () => import('../views/FriendProfile.vue'),
+    props: true,
+    meta: {
+      ensureAuth: true
+    },
+    beforeEnter: async (to, from) => {
+      const user = await store.getters.user
+      if (await user._id === to.params.id) {
+        return '/profile'
+      } else {
+        return true
+      }
+    }
+  },
+  {
+    path: '/user/timeline/:id/:pageId?',
     name: 'FriendTimeline',
     component: () => import('../views/FriendTimeline.vue'),
-    props: true,
+    props: (route) => ({ 
+      pageId: Number.parseInt(route.params.pageId, 10)  || 1, 
+      id: route.params.id 
+    }),
     meta: {
       ensureAuth: true
     }
@@ -118,6 +166,22 @@ const routes = [
     component: () => import('../views/Register.vue'),
     meta: {
       ensureGuest: true
+    }
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('../views/About.vue'),
+    meta: {
+      ensureAuth: true
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'Error',
+    component: () => import('../views/Error.vue'),
+    meta: {
+      ensureAuth: true
     }
   }
 ]

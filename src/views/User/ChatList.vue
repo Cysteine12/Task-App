@@ -5,7 +5,7 @@
       <div class="col-xl-8 col-lg-7">
 
           <!-- Approach -->
-          <div v-if="chats !== ''">
+          <div v-if="chats">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <span class="my-0 mx-3 font-weight-bold text-primary inline text-start">
@@ -18,9 +18,14 @@
                         :to="`/chat/${getFriendId(chat)}`"
                         v-for="chat in chats"
                         :key="chat.index"
-                        class="card py-1 px-3 nav-link d-flex flex-row align-items-center justify-content-between"
+                        class="card my-2 py-2 px-3 nav-link d-flex flex-row align-items-center justify-content-between"
                     >
-                        <div>
+                        <div class="d-flex align-items-center">
+                          <div class="image-small mr-3">
+                              <img class="rounded-circle" :src="chat.photo"
+                                  alt="...">
+                              <div class="status-indicator bg-success"></div>
+                          </div>
                           <span class="my-0 mx-1 font-weight-bold text-primary inline text-start">{{ chat.name }}:</span>
                           <span class="my-0 mx-1"> {{ chat.message }}...</span>
                         </div>
@@ -57,7 +62,7 @@ export default {
   setup() {
     const store = useStore()
 
-    const chats = ref([])
+    const chats = ref(null)
     const user = ref(null)
     const statCheck = ref({
       status: '',
@@ -109,5 +114,10 @@ export default {
 
 .font-small {
   font-size: 10px;
+}
+
+.image-small img {
+  max-height: 30px;
+  max-width: 30px;
 }
 </style>

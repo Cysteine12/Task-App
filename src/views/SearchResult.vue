@@ -9,22 +9,32 @@
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-primary">Users Profile Details</h6>
               </div>
-              <div v-if="results" class="card-body">
-                <div class="p-4">
-                    <div 
-                        v-for="result in results"
-                        :key="result.index"
-                        class="p-2"
-                    >
-                        <span class="my-0 mx-3 inline font-weight-bold text-primary text-start">User Name: </span>
-                        <span class="my-0 mx-3 font-weight-bold inline text-start">{{ result.name }}</span>
-                        <br><br>
-                        <router-link :to="'/user/profile/' + result._id" class="btn btn-primary btn-user btn-block">
-                            More Details
-                        </router-link>
-                        <hr>
+              <div v-if="results != ''" class="card-body">
+                <div
+                    v-for="result in results"
+                    :key="result.index"
+                    class="card my-2 py-2 px-3 nav-link d-flex flex-row align-items-center justify-content-between"
+                >
+                    <div class="d-flex align-items-center">
+                      <div class="image-small mr-3">
+                          <img class="rounded-circle" :src="result.photo"
+                              alt="...">
+                          <div class="status-indicator bg-success"></div>
+                      </div>
+                      <span class="my-0 mx-1 font-weight-bold text-primary inline text-start">{{ result.name }}</span>
+                    </div>
+                    <div>
+                      <router-link
+                        :to="`/user/profile/${result._id}`"
+                        class="btn btn-outline btn-inline"
+                      >
+                        View Profile
+                      </router-link>
                     </div>
                 </div>
+              </div>
+              <div v-else class="card-body">
+                No User name match found!
               </div>
           </div>
 
@@ -51,7 +61,7 @@ export default {
   setup(props) {
 
     const user = ref(null)
-    const results = ref(null)
+    const results = ref([])
     const statCheck = ref({
       status: '',
       err: ''
@@ -82,3 +92,15 @@ export default {
   }
 }
 </script>
+<style scoped>
+.image-small img {
+  max-height: 30px;
+  max-width: 30px;
+}
+
+.btn-outline {
+  padding: 3px;
+  border: 1px solid #3c3cbe;
+  border-radius: 5px;
+}
+</style>

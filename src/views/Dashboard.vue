@@ -4,47 +4,6 @@
     <div class="row">
       <div class="col-xl-8 col-lg-7">
 
-          <!-- Illustrations -->
-          <div class="card shadow mb-4">
-              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Create New Post</h6>
-              </div>
-              <div v-if="user" class="card-body">
-                <div class="p-4">
-                    <StatCheck v-if="postCheck" :statCheck="postCheck" />
-                    <form class="user" @submit.prevent="formSubmit">
-                        <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                                <input type="text" v-model="form.title" class="form-control form-control-user" id="exampleFirstName"
-                                    placeholder="Title" required>
-                            </div>
-                            <div class="col-sm-6">
-                                <input type="text" v-model="form.course" class="form-control form-control-user" id="exampleLastName"
-                                    placeholder="Course" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" v-model="form.notes" class="form-control form-control-user" id="exampleInputEmail"
-                                placeholder="Your Notes" required>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                                <input type="text" v-model="form.teacher" class="form-control form-control-user"
-                                    id="exampleInputPassword" placeholder="Teacher" required>
-                            </div>
-                            <div class="col-sm-6">
-                                <input type="datetime" v-model="form.deadline" class="form-control form-control-user"
-                                    id="exampleRepeatPassword" placeholder="Deadline (04/01/2022)" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-user btn-block">
-                            Send Post
-                        </button>
-                    </form>
-                </div>
-              </div>
-          </div>
-
           <!-- Approach -->
           <div v-if="posts !== ''">
             <Post 
@@ -54,7 +13,14 @@
               :showbutton="trueM"
             />
           </div>
+          <div v-else class="card shadow mb-4">
+            <div class="card-header py-3">No Posts on your dashboard yet. Create new posts now</div>
+          </div>
+          <br><br>
 
+          <div v-if="pagination.totalCount">
+            <Pagination :pagination="pagination" />
+          </div>
       </div>
   </div>
   </template>
@@ -65,8 +31,8 @@
 import MainLayout from '@/components/MainLayout.vue'
 import StatCheck from '@/components/StatCheck.vue'
 import Post from '@/components/Post.vue'
-import { useRouter } from 'vue-router'
-import { onMounted } from '@vue/runtime-core'
+import Pagination from '@/components/Pagination.vue'
+import { onMounted, watchEffect } from '@vue/runtime-core'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -75,71 +41,58 @@ export default {
   components: {
     MainLayout,
     StatCheck,
-    Post
+    Post,
+    Pagination
   },
-  setup() {
-    const trueM = true
-    // Form functionality
-    const form = ref({
-      title: '',
-      course: '',
-      notes: '',
-      teacher: '',
-      deadline: ''
-    })
-    const postCheck = ref({
-      status: '',
-      err: ''
-    })
-
-    const router = useRouter()
-    const store = useStore()
-
-    const formSubmit = async () => {
-      // Send Post
-        postCheck.value.status = ''
-        const res = await store.dispatch('postPost', form.value)
-  
-        if (res.success === true) {
-          postCheck.value.status = res.msg
-        } else {
-          postCheck.value.status = await store.getters.authState
-          postCheck.value.err = res.err
-        }
+  props: {
+    pageId: {
+        type: Number,
+        default: 1
     }
-
-
-    // Others
+  },
+  setup(props) {
+    const trueM = true
     const posts = ref([])
     const user = ref(null)
+    const pagination = ref({
+        currentPage: props.pageId ?? 1,
+        totalCount: null,
+        perPage: 2
+    })
     const statCheck = ref({
       status: '',
       err: ''
     })
 
+    const store = useStore()
 
     onMounted(async () => {
-      await store.dispatch('getProfile')
-
-      statCheck.value.status = await store.getters.authState
-      user.value = await store.getters.user
-
-      //-------------------//
-      await store.dispatch('getPostsByOwner',  user.value._id)
-      
-      statCheck.value.status = await store.getters.getPostState
-      statCheck.value.err = await store.getters.postError
-      posts.value = await store.getters.post
+        await store.dispatch('getProfile')
+        statCheck.value.status = await store.getters.authState
+        user.value = await store.getters.user
+        
+        //-------------------//
+        watchEffect(async () => {
+            window.scrollTo(0, 0)
+            const data = {
+                userId: user.value._id,
+                pageId: props.pageId ?? 1
+            }
+            await store.dispatch('getPostsByOwner', data)
+            
+            statCheck.value.status = await store.getters.getPostState
+            statCheck.value.err = await store.getters.postError
+            posts.value = await store.getters.post.data
+            pagination.value.totalCount = await store.getters.post.postCount
+            pagination.value.currentPage = props.pageId ?? 1
+        })
     })
 
     return {
       trueM,
-      form,
-      formSubmit,
-      postCheck,
       statCheck,
-      user,
-      posts
+      posts,
+      pagination
     }
   }
 }

@@ -8,7 +8,7 @@
           <div class="row">
 
               <!-- Followers Example -->
-              <div class="col-xl-3 col-md-6 mb-4">
+              <div class="col-xl-4 col-md-6 mb-4">
                   <div class="card border-left-primary shadow h-100 py-2">
                       <div class="card-body">
                           <div class="row no-gutters align-items-center">
@@ -26,8 +26,8 @@
               </div>
 
               <!-- Followers Example -->
-              <div class="col-xl-3 col-md-6 mb-4">
-                  <div class="card border-left-primary shadow h-100 py-2">
+              <div class="col-xl-4 col-md-6 mb-4">
+                  <div class="card border-left-success shadow h-100 py-2">
                       <div class="card-body">
                           <div class="row no-gutters align-items-center">
                               <div class="col mr-2">
@@ -44,7 +44,7 @@
               </div>
 
               <!-- Followers Card Example -->
-              <div class="col-xl-3 col-md-6 mb-4">
+              <div class="col-xl-4 col-md-6 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -54,7 +54,7 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ user.savedEvent.length }}</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -65,21 +65,7 @@
           <!-- Illustrations -->
           <div class="card shadow mb-4">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">{{ user.name }}'s Timeline</h6>
-                  <div class="dropdown no-arrow">
-                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                      </a>
-                      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                          aria-labelledby="dropdownMenuLink">
-                          <div class="dropdown-header">Dropdown Header:</div>
-                          <a class="dropdown-item" href="#">Action</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="#">Something else here</a>
-                      </div>
-                  </div>
+                  <h6 class="m-0 font-weight-bold text-primary">My Timeline</h6>
               </div>
               <div class="card-body">
                   <div class="text-center">
@@ -92,7 +78,7 @@
           </div>
 
           <!-- Approach -->
-          <div v-if="posts !== ''">
+          <div v-if="posts.length > 0">
             <Post 
               v-for="post in posts"
               :key="post.index"
@@ -100,7 +86,14 @@
               :showbutton="trueM"
             />
           </div>
+          <div v-else class="card shadow mb-4">
+            <div class="card-header py-3">No Posts on your timeline yet. Follow other users and create your posts now</div>
+          </div>
+          <br><br>
 
+          <div v-if="pagination.totalCount">
+            <Pagination :pagination="pagination" />
+          </div>
       </div>
   </div>
   </template>
@@ -109,8 +102,9 @@
 
 <script>
 import MainLayout from '@/components/MainLayout.vue'
+import Pagination from '@/components/Pagination.vue'
 import Post from '@/components/Post.vue'
-import { onMounted } from '@vue/runtime-core'
+import { onMounted, watchEffect } from '@vue/runtime-core'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -118,13 +112,25 @@ export default {
  name: 'Home',
   components: {
     MainLayout,
+    Pagination,
     Post
   },
-  setup() {
+  props: {
+    pageId: {
+        type: Number,
+        default: 1
+    }
+  },
+  setup(props) {
     const trueM = true
     const store = useStore()
     const posts = ref([])
     const user = ref(null)
+    const pagination = ref({
+        currentPage: props.pageId ?? 1,
+        totalCount: null,
+        perPage: 2
+    })
     const statCheck = ref({
       status: '',
       err: ''
@@ -132,24 +138,34 @@ export default {
 
 
     onMounted(async () => {
-      await store.dispatch('getProfile')
+        await store.dispatch('getProfile')
+        statCheck.value.status = await store.getters.authState
+        user.value = await store.getters.user
 
-      statCheck.value.status = await store.getters.authState
-      user.value = await store.getters.user
-
-      //-------------------//
-      await store.dispatch('getPosts',  user.value._id)
-      
-      statCheck.value.status = await store.getters.getPostState
-      statCheck.value.err = await store.getters.postError
-      posts.value = await store.getters.post
+        //-------------------//
+        watchEffect(async () => {
+            window.scrollTo(0, 0)
+            const data = {
+                userId: user.value._id,
+                pageId: props.pageId ?? 1
+            }
+            await store.dispatch('getPosts', data)
+            
+            statCheck.value.status = await store.getters.getPostState
+            statCheck.value.err = await store.getters.postError
+            posts.value = await store.getters.post.data
+            pagination.value.totalCount = await store.getters.post.postCount
+            pagination.value.currentPage = props.pageId ?? 1
+        })
     })
+
 
     return {
       trueM,
       statCheck,
       user,
-      posts
+      posts,
+      pagination
     }
   }
 }

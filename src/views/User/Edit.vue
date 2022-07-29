@@ -12,12 +12,7 @@
               <div v-if="user" class="card-body">
                 <div class="p-4">
                     <StatCheck v-if="statCheck" :statCheck="statCheck" />
-                    <form class="user" @submit.prevent="formSubmit" enctype="multipart/form-data">
-                        <div class="form-control">
-                            <label for="img-file">Upload Image</label>
-                            <input type="file" ref="photo"/>
-                        </div>
-                        <br><br>
+                    <form class="user" @submit.prevent="formSubmit">
                         <div class="form-group row">
                             <div class="col-sm-6 mb-3 mb-sm-0">
                                 <input type="text" v-model="form.name" class="form-control form-control-user" id="exampleFirstName"
@@ -64,7 +59,6 @@ export default {
   },
   setup() {
       // Form functionality
-    const photo = ref(null)
     const user = ref(null)
     const form = ref({
       title: '',
@@ -91,23 +85,19 @@ export default {
 
     const formSubmit = async () => {
       // Send Post
-        let formData = new FormData();
-        formData.append('photo', photo.value.files[0])
-        formData.append('title', form.value.title)
-        formData.append('course', form.value.course)
-        formData.append('notes', form.value.notes)
-        formData.append('teacher', form.value.teacher)
-        formData.append('deadline', form.value.deadline)
         const data = {
           id: user.value._id,
-          formData: formData
+          formData: form.value
         }
         statCheck.value.status = 'Updating...'
         statCheck.value.err = ''
         const res = await store.dispatch('updateProfile', data)
   
         if (res.success === true) {
-          statCheck.value.status = res.msg
+          statCheck.value.status = res.msg + ' Redirecting...'
+          setTimeout(() => {
+            router.push({ name: 'Profile' })
+          }, 3000)
         } else {
           statCheck.value.status = await store.getters.authState
           statCheck.value.err = res.err
@@ -116,7 +106,6 @@ export default {
 
 
     return {
-      photo,
       form,
       formSubmit,
       statCheck,

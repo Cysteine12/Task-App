@@ -44,12 +44,12 @@ const actions = {
             }
         }
     },
-    async getPosts({ commit }, userId) {
+    async getPosts({ commit }, data) {
         commit('posts_request')
         try {
-            const res = await axios.get(`${API}/api/user/timeline/${userId}`)
+            const res = await axios.get(`${API}/api/user/timeline/${data.userId}/${data.pageId}`)
             if (res.data.success) {
-
+                
                 commit('posts_success', res.data.data)
                 return {
                     success: res.data.success,
@@ -88,10 +88,10 @@ const actions = {
             }
         }
     },
-    async getEvents({ commit }, userId) {
+    async getEvents({ commit }, pageId) {
         commit('events_request')
         try {
-            const res = await axios.get(`${API}/api/user/get-event`)
+            const res = await axios.get(`${API}/api/user/get-event/${pageId}`)
             if (res.data.success) {
                 
                 commit('events_success', res.data.data)
@@ -137,10 +137,58 @@ const actions = {
             }
         }
     },
-    async getNotifications({ commit }) {
+    async getFollowers({ commit }, userId) {
+        commit('followers_request')
+        try {
+            const res = await axios.get(`${API}/api/user/get-follower/${userId}`)
+            if (res.data.success) {
+                
+                commit('followers_success', res.data.data)
+                return {
+                    success: res.data.success,
+                    data: res.data.data
+                }
+            } else {
+                commit('followers_error', res.data.err)
+                return {
+                    err: res.data.err
+                }
+            }
+        } catch (err) {
+            commit('followers_error', err)
+            return {
+                err: err
+            }
+        }
+    },
+    async getFollowings({ commit }, userId) {
+        commit('followings_request')
+        try {
+            const res = await axios.get(`${API}/api/user/get-following/${userId}`)
+            if (res.data.success) {
+                
+                commit('followings_success', res.data.data)
+                return {
+                    success: res.data.success,
+                    data: res.data.data
+                }
+            } else {
+                commit('followings_error', res.data.err)
+                return {
+                    err: res.data.err
+                }
+            }
+        } catch (err) {
+            commit('followings_error', err)
+            return {
+                err: err
+            }
+        }
+    },
+    async getNotificationAlerts({ commit }) {
         commit('notifications_request')
         try {
-            const res = await axios.get(`${API}/api/user/get-notification`)
+            const res = await axios.get(`${API}/api/notification/alerts`)
             if (res.data.success) {
 
                 commit('notifications_success', res.data.data)
@@ -161,10 +209,79 @@ const actions = {
             }
         }
     },
+    async getNotifications({ commit }) {
+        commit('notifications_request')
+        try {
+            const res = await axios.get(`${API}/api/notification`)
+            if (res.data.success) {
+
+                commit('notifications_success', res.data.data)
+                return {
+                    success: res.data.success,
+                    data: res.data.data
+                }
+            } else {
+                commit('notifications_error', res.data.err)
+                return {
+                    err: res.data.err
+                }
+            }
+        } catch (err) {
+            commit('notifications_error', err)
+            return {
+                err: err
+            }
+        }
+    },
+    async updateNotifications({ commit }, formData) {
+        try {
+            const res = await axios.put(`${API}/api/notification/update`)
+            if (res.data.success) {
+            
+                return {
+                    success: res.data.success
+                }
+            } else {
+                commit('post_event_error', res.data.err)
+                return {
+                    err: res.data.err
+                }
+            }
+        } catch (err) {
+            commit('post_event_error', err)
+            return {
+                err: err
+            }
+        }
+    },
+    async getChatListAlerts({ commit }) {
+        commit('chatlist_request')
+        try {
+            const res = await axios.get(`${API}/api/chat/get-chat-list-alert`)
+            if (res.data.success) {
+
+                commit('chatlist_success', res.data.data)
+                return {
+                    success: res.data.success,
+                    data: res.data.data
+                }
+            } else {
+                commit('chatlist_error', res.data.err)
+                return {
+                    err: res.data.err
+                }
+            }
+        } catch (err) {
+            commit('chatlist_error', err)
+            return {
+                err: err
+            }
+        }
+    },
     async getChatList({ commit }) {
         commit('chatlist_request')
         try {
-            const res = await axios.get(`${API}/api/user/get-chat-list`)
+            const res = await axios.get(`${API}/api/chat/get-chat-list`)
             if (res.data.success) {
 
                 commit('chatlist_success', res.data.data)
@@ -188,7 +305,7 @@ const actions = {
     async getChats({ commit }, formData) {
         commit('chats_request')
         try {
-            const res = await axios.post(`${API}/api/user/get-chat`, formData)
+            const res = await axios.post(`${API}/api/chat/get-chat`, formData)
             if (res.data.success) {
 
                 commit('chats_success', res.data.data)
@@ -212,7 +329,7 @@ const actions = {
     async saveChat({ commit }, formData) {
         commit('post_chat_request')
         try {
-            const res = await axios.put(`${API}/api/user/save-chat`, formData)
+            const res = await axios.put(`${API}/api/chat/save-chat`, formData)
             if (res.data.success) {
                 
                 commit('post_chat_success', res.data.msg)
@@ -270,9 +387,9 @@ const mutations = {
     posts_request(state) {
         state.status = 'loading..'
     },
-    posts_success(state, posts) {
+    posts_success(state, data) {
         state.status = '',
-        state.posts = posts
+        state.posts = data.data
     },
     posts_error(state, err) {
         state.status = 'Please reload the page!',
@@ -317,6 +434,28 @@ const mutations = {
     },
     post_event_error(state, err) {
         state.status = 'Event upload failed, Try again!',
+        state.error = err
+    },
+    followers_request(state) {
+        state.status = 'loading..'
+    },
+    followers_success(state, followers) {
+        state.status = '',
+        state.posts = followers
+    },
+    followers_error(state, err) {
+        state.status = 'Please reload the page!',
+        state.error = err
+    },
+    followings_request(state) {
+        state.status = 'loading..'
+    },
+    followings_success(state, followings) {
+        state.status = '',
+        state.posts = followings
+    },
+    followings_error(state, err) {
+        state.status = 'Please reload the page!',
         state.error = err
     },
     post_request(state) {

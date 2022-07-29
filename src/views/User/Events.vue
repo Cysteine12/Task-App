@@ -5,16 +5,22 @@
       <div class="col-xl-8 col-lg-7">
 
           <!-- Approach -->
-          <div v-if="events !== ''">
+          <div v-if="events.length > 0">
             <Post 
               v-for="event in events"
               :key="event.index"
-              :post="event[0]"
+              :post="event"
               :showbutton="falseM"
               :showbutton2="trueM"
             />
           </div>
+          <div v-else class="card p-3 shadow mb-4">
+            No saved events yet.
+          </div>
 
+          <div v-if="pagination.totalCount">
+            <Pagination :pagination="pagination" />
+          </div>
       </div>
   </div>
   </template>
@@ -25,7 +31,8 @@
 import MainLayout from '@/components/MainLayout.vue'
 import StatCheck from '@/components/StatCheck.vue'
 import Post from '@/components/Post.vue'
-import { onMounted } from '@vue/runtime-core'
+import Pagination from '@/components/Pagination.vue'
+import { onMounted, watchEffect } from '@vue/runtime-core'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 
@@ -34,28 +41,43 @@ export default {
   components: {
     MainLayout,
     StatCheck,
-    Post
+    Post,
+    Pagination
   },
-  setup() {
+  props: {
+    pageId: {
+        type: Number,
+        default: 1
+    }
+  },
+  setup(props) {
     const trueM = true
     const falseM = false
-    const store = useStore()
-
     const events = ref([])
     const user = ref(null)
+    const pagination = ref({
+      currentPage: props.pageId ?? 1,
+      totalCount: null,
+      perPage: 2
+    })
     const statCheck = ref({
       status: '',
       err: ''
     })
-
+    
+    const store = useStore()
 
     onMounted(async () => {
-
-        await store.dispatch('getEvents')
-        
-        statCheck.value.status = await store.getters.getPostState
-        statCheck.value.err = await store.getters.postError
-        events.value = await store.getters.events
+        watchEffect(async () => {
+            window.scrollTo(0, 0)
+            await store.dispatch('getEvents', props.pageId ?? 1)
+            
+            statCheck.value.status = await store.getters.getPostState
+            statCheck.value.err = await store.getters.postError
+            events.value = await store.getters.events.data
+            pagination.value.totalCount = await store.getters.events.eventCount
+            pagination.value.currentPage = props.pageId ?? 1
+        })
     })
 
     return {
@@ -63,7 +85,8 @@ export default {
       falseM,
       statCheck,
       user,
-      events
+      events,
+      pagination
     }
   }
 }

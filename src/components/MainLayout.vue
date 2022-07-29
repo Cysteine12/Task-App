@@ -1,6 +1,5 @@
 <template>
-<div>
-  <!-- <Header header="Home" /> -->
+<div class="body-toggle">
 
   <!-- Page Wrapper -->
   <div id="wrapper">
@@ -13,7 +12,7 @@
               <div class="sidebar-brand-icon rotate-n-15">
                   <i class="fas fa-laugh-wink"></i>
               </div>
-              <div class="sidebar-brand-text mx-3">SB Admin</div>
+              <div class="sidebar-brand-text mx-3">Task App</div>
           </router-link>
 
           <!-- Divider -->
@@ -44,8 +43,8 @@
               <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                   <div class="bg-white py-2 collapse-inner rounded">
                       <h6 class="collapse-header">My Dashboard:</h6>
+                      <router-link to="/post/create" class="collapse-item">Create New Post</router-link>
                       <router-link to="/dashboard" class="collapse-item">My Posts</router-link>
-                      <router-link to="/dashboard" class="collapse-item">Create New Post</router-link>
                       <router-link to="/my-events" class="collapse-item">My Events</router-link>
                   </div>
               </div>
@@ -83,7 +82,8 @@
               </a>
               <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                   <div class="bg-white py-2 collapse-inner rounded">
-                      <button class="collapse-item" data-toggle="modal" data-target="#logoutModal">
+                      <router-link to="/about" class="collapse-item">About</router-link>
+                      <button class="btn collapse-item" data-toggle="modal" data-target="#logoutModal">
                         Logout
                       </button>
                   </div>
@@ -95,14 +95,14 @@
 
           <!-- Sidebar Toggler (Sidebar) -->
           <div class="text-center d-none d-md-inline">
-              <button class="rounded-circle border-0" id="sidebarToggle"></button>
+              <button @click.prevent="sidebarToggle" class="rounded-circle border-0" id="sidebarToggle"></button>
           </div>
 
           <!-- Sidebar Message -->
           <div class="sidebar-card d-none d-lg-flex">
               <img class="sidebar-card-illustration mb-2" src="img/undraw_rocket.svg" alt="...">
               <p class="text-center mb-2">
-                <strong>SB Admin</strong> is packed with premium features for your convenience and learning!
+                <strong>TASK APP</strong> is packed with premium features for your convenience and learning!
               </p>
 
           </div>
@@ -120,7 +120,7 @@
               <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
                   <!-- Sidebar Toggle (Topbar) -->
-                  <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                  <button @click.prevent="sidebarToggle" id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                       <i class="fa fa-bars"></i>
                   </button>
 
@@ -183,14 +183,14 @@
                               <h6 class="dropdown-header">
                                   My Notifications
                               </h6>
-                              <router-link to="my-notifications" v-for="notification in notifications" :key="notification.index" class="dropdown-item d-flex align-items-center">
+                              <router-link to="/my-notifications" v-for="notification in notifications" :key="notification.index" class="dropdown-item d-flex align-items-center">
                                   <div class="mr-3">
                                       <div class="icon-circle bg-primary">
                                           <i class="fas fa-user text-white"></i>
                                       </div>
                                   </div>
                                   <div>
-                                      <div class="small text-gray-500">Just recently</div>
+                                      <div class="small text-gray-500">{{ getTime(notification.createdAt) }} · {{ getDate(notification.createdAt) }}</div>
                                       <span :class="{ 'font-weight-bold': !notification.seen }">{{ notification.body }}</span>
                                   </div>
                               </router-link>
@@ -198,18 +198,52 @@
                           </div>
                       </li>
 
+                        <!-- Nav Item - Messages -->
+                      <li v-if="chats" class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-envelope fa-fw"></i>
+                                <!-- Counter - Messages -->
+                                <span class="badge badge-danger badge-counter">{{ chats.length }}</span>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="messagesDropdown">
+                                <h6 class="dropdown-header">
+                                    My Messages
+                                </h6>
+                                <router-link 
+                                    :to="`/chat/${getFriendId(chat)}`"
+                                    v-for="chat in chats"
+                                    :key="chat.index"
+                                    class="dropdown-item d-flex align-items-center"
+                                >
+                                    <div class="dropdown-list-image mr-3">
+                                        <img class="rounded-circle" :src="chat.photo"
+                                            alt="...">
+                                        <div class="status-indicator bg-success"></div>
+                                    </div>
+                                    <div class="font-weight-bold">
+                                        <div class="text-truncate">{{ chat.message }}...</div>
+                                        <div class="small text-gray-500">
+                                            {{ chat.name }} ·  {{ getTime(chat.createdAt) }} | {{ getDate(chat.createdAt) }}
+                                        </div>
+                                    </div>
+                                </router-link>
+                                <router-link to="/my-chats" class="dropdown-item text-center small text-gray-500">Read More Messages</router-link>
+                            </div>
+                      </li>
+
                       <div class="topbar-divider d-none d-sm-block"></div>
 
                       <!-- Nav Item - User Information -->
-                      <li class="nav-item dropdown no-arrow">
-                          <div v-if="user">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.name }}</span>
-                                <img class="img-profile rounded-circle"
-                                    :src="user.photo">
-                            </a>
-                          </div>
+                      <li v-if="user" class="nav-item dropdown no-arrow">
+                          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.name }}</span>
+                              <img class="img-profile rounded-circle"
+                                  :src="user.photo">
+                          </a>
                           <!-- Dropdown - User Information -->
                           <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                               aria-labelledby="userDropdown">
@@ -236,7 +270,7 @@
                   <!-- Page Heading -->
                   <div class="d-sm-flex align-items-center justify-content-between mb-4">
                       <h1 class="h3 mb-0 text-gray-800">{{ header }}</h1>
-                      <router-link to="/dashboard" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                      <router-link to="/post/create" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                               class="fas fa-download fa-sm text-white-50"></i> Create New Post</router-link>
                   </div>
 
@@ -266,7 +300,7 @@
   <!-- End of Page Wrapper -->
 
   <!-- Scroll to Top Button-->
-  <button class="scroll-to-top rounded" @click.prevent="scrollToTop">
+  <button class="btn scroll-to-top rounded" @click.prevent="scrollToTop">
       <i class="fas fa-angle-up"></i>
   </button>
 
@@ -311,6 +345,7 @@ export default {
     const user = ref(null)
     const searchInput = ref(null)
     const notifications = ref(null)
+    const chats = ref([])
     const authCheck = ref({
       status: '',
       err: ''
@@ -332,17 +367,43 @@ export default {
         authCheck.value.status = await store.getters.authState
         user.value = await store.getters.user
 
-        const res = await store.dispatch('getNotifications')
+        const res = await store.dispatch('getNotificationAlerts')
+        notifications.value = await res.data
+
+        await store.dispatch('getChatListAlerts')
+        chats.value = await store.getters.chats
         
         statCheck.value.status = await store.getters.getPostsState
-        
-        notifications.value = await res.data.slice(0, 3)
       }
     })
+
+    const getFriendId = (chat) =>{
+        if (chat.userA == user.value._id) {
+            return chat.userB
+        } else {
+            return chat.userA
+        }
+    }
+
+    const getDate = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(0, 10)
+    }
+    const getTime = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(16, 21)
+    }
+
     const searchForm = async () => {
         router.push({ name: 'SearchResult', params: { text: searchInput.value }})
     }
 
+    const sidebarToggle = async () => {
+      var body = document.getElementsByClassName('body-toggle')[0]
+      body.classList.toggle('sidebar-toggled')
+      var sidebar = document.getElementById('accordionSidebar')
+      sidebar.classList.toggle('toggled')
+    }
     const scrollToTop = async () => {
       window.scrollTo(0, 0)
     }
@@ -357,6 +418,11 @@ export default {
       searchForm,
       searchInput,
       notifications,
+      chats,
+      getFriendId,
+      getDate,
+      getTime,
+      sidebarToggle,
       scrollToTop,
       logoutForm
     }

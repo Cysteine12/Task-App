@@ -100,6 +100,32 @@ const actions = {
             }
         }
     },
+    async updateProfilePhoto({ commit }, data) {
+        commit('edit_photo_request')
+        try {
+            const res = await axios.put(`${API}/api/auth/update-photo/${data.id}`, data.formData)
+            if (res.data.success) {
+
+                const msg = res.data.msg
+                commit('edit_photo_success', msg)
+
+                return {
+                    success: res.data.success,
+                    msg: res.data.msg
+                }
+            } else {
+                commit('edit_photo_error', res.data.msg)
+                return {
+                    err: res.data.msg
+                }
+            }
+        } catch (err) {
+            commit('edit_photo_error', err)
+            return {
+                err: err
+            }
+        }
+    },
     async deleteProfile({ commit }) {
         commit('delete_profile_request')
         try {
@@ -175,6 +201,16 @@ const mutations = {
         state.status = 'Account update failed, Try again',
         state.error = msg
     },
+    edit_photo_request(state) {
+        state.status = 'loading..'
+    },
+    edit_photo_success(state, msg) {
+        state.status = msg
+    },
+    edit_photo_error(state, msg) {
+        state.status = 'Photo update failed, Try again',
+        state.error = msg
+    },
     delete_profile_request(state) {
         state.status = 'loading..'
     },
@@ -189,6 +225,7 @@ const mutations = {
         state.status = 'loading..'
     },
     profile_success(state, user) {
+        state.status = ''
         state.user = user
     },
     logout(state) {
