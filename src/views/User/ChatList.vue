@@ -5,7 +5,7 @@
       <div class="col-xl-8 col-lg-7">
 
           <!-- Approach -->
-          <div v-if="chats">
+          <div v-if="chats.length > 0">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <span class="my-0 mx-3 font-weight-bold text-primary inline text-start">
@@ -37,6 +37,9 @@
                 </div>
             </div>
           </div>
+          <div v-else class="card p-3">
+            No chats yet!
+          </div>
 
       </div>
   </div>
@@ -62,7 +65,7 @@ export default {
   setup() {
     const store = useStore()
 
-    const chats = ref(null)
+    const chats = ref([])
     const user = ref(null)
     const statCheck = ref({
       status: '',

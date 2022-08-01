@@ -5,7 +5,7 @@
       <div class="col-xl-8 col-lg-7">
 
           <!-- Approach -->
-          <div v-if="posts !== ''">
+          <div v-if="posts.length > 0">
             <Post 
               v-for="post in posts"
               :key="post.index"
