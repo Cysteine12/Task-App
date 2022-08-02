@@ -38,7 +38,7 @@ import MainLayout from '@/components/MainLayout.vue'
 import StatCheck from '@/components/StatCheck.vue'
 import Post from '@/components/Post.vue'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
@@ -56,9 +56,13 @@ export default {
       status: '',
       err: ''
     })
-
+    
     const router = useRouter()
     const store = useStore()
+
+    onMounted(async () => {
+      user.value = await store.getters.user
+    })
 
     const formSubmit = async () => {
       // Send Post
