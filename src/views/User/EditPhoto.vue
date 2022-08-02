@@ -56,7 +56,7 @@ export default {
       status: '',
       err: ''
     })
-    
+
     const router = useRouter()
     const store = useStore()
 
@@ -75,9 +75,12 @@ export default {
         statCheck.value.status = 'Updating...'
         statCheck.value.err = ''
         const res = await store.dispatch('updateProfilePhoto', data)
-  
+
         if (res.success === true) {
-          statCheck.value.status = res.msg
+          statCheck.value.status = res.msg + ' Redirecting..'
+          setTimeout(() => {
+            router.go(-1)
+          }, 3000)
         } else {
           statCheck.value.status = await store.getters.authState
           statCheck.value.err = res.err
