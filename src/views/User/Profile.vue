@@ -19,7 +19,7 @@
               <div class="mt-5 text-center">
                 <h4 class="mb-0">{{ user.name }}</h4>
                 <span class="text-muted d-block mb-2">{{ user.email }}</span>
-                <span class="text-muted d-block mb-2">{{ user.phone }}</span>
+                <span class="text-muted d-block mb-2">0{{ user.phone }}</span>
                 
                 <div class="d-flex justify-content-between align-items-center my-4 px-4">
 
