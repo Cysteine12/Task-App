@@ -61,6 +61,9 @@ export default {
     const store = useStore()
 
     onMounted(async () => {
+      await store.dispatch('getProfile')
+
+      statCheck.value.status = await store.getters.authState
       user.value = await store.getters.user
     })
 
