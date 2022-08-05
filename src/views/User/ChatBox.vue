@@ -205,9 +205,9 @@ export default {
 <style scoped>
 
 #body, .card-header, .card-footer {
-  background: #7F7FD5;
-  background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
-  background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+  background: #2e6699;
+  background: -webkit-linear-gradient(to right, #2e6699, #2c4160, #0d102d);
+  background: linear-gradient(to right, #2e6699, #2c4160, #0d102d);
 }
 
 .chat{
@@ -318,16 +318,18 @@ color: rgba(255,255,255,0.6);
   padding: 10px;
   position: relative;
   white-space: pre-line;
+  color: #fff;
 }
 .msg_cotainer_send{
   margin-top: auto;
   margin-bottom: auto;
   margin-right: 10px;
   border-radius: 25px;
-  background-color: #78e08f;
+  background-color: #0096bc;
   padding: 10px;
   position: relative;
   white-space: pre-line;
+  color: #fff;
 }
 .msg_time{
   position: absolute;
