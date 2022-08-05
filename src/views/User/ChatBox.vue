@@ -317,6 +317,7 @@ color: rgba(255,255,255,0.6);
   background-color: #82ccdd;
   padding: 10px;
   position: relative;
+  white-space: pre-line;
 }
 .msg_cotainer_send{
   margin-top: auto;
@@ -326,6 +327,7 @@ color: rgba(255,255,255,0.6);
   background-color: #78e08f;
   padding: 10px;
   position: relative;
+  white-space: pre-line;
 }
 .msg_time{
   position: absolute;
