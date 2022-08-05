@@ -26,8 +26,10 @@
                                   alt="...">
                               <div class="status-indicator bg-success"></div>
                           </div>
-                          <span class="my-0 mx-1 font-weight-bold text-primary inline text-start">{{ chat.name }}:</span>
-                          <span class="my-0 mx-1"> {{ chat.message }}...</span>
+                          <div>
+                            <div class="my-0 mx-0 font-weight-bold text-primary inline text-start">{{ chat.name }}</div>
+                            <div class="my-0 mx-0 font-small"> {{ chat.message }}...</div>
+                          </div>
                         </div>
                         <div>
                           <div class="my-0 mx-0 font-small"> {{ getTime(chat.createdAt) }}</div>
