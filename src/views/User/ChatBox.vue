@@ -1,5 +1,5 @@
 <template>
-<MainLayout header="Chax Box">
+<MainLayout>
   <template #body-content>
     <div class="row">
       
@@ -102,7 +102,7 @@ import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
- name: 'Home',
+ name: 'ChatBox',
   components: {
     MainLayout,
     StatCheck,
@@ -215,7 +215,7 @@ export default {
     margin-bottom: auto;
   }
   .card{
-    height: 500px;
+    height: 00px;
     border-radius: 15px !important;
     background-color: rgba(0,0,0,0.4) !important;
     box-shadow: 0px 4px 10px gray;
