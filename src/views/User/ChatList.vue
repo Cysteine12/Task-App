@@ -123,6 +123,6 @@ export default {
 
 .image-small img {
   max-height: 30px;
-  max-width: 30px;
+  width: 30px;
 }
 </style>
