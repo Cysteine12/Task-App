@@ -2,50 +2,91 @@
 <MainLayout header="Chax Box">
   <template #body-content>
     <div class="row">
-      <div class="col-xl-8 col-lg-7">
-
-          <!-- Illustrations -->
-          <div class="card shadow mb-4">
-              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Messages</h6>
+      
+      <div class="col-md-8 col-xl-6 chat">
+        <div v-if="user && friendData" class="card" id="body">
+          <div class="card-header msg_head">
+            <div class="d-flex bd-highlight">
+              <div class="img_cont">
+                <img :src="friendData.photo" class="rounded-circle user_img">
+                <span class="online_icon"></span>
               </div>
-              <div class="card-body">
-                <div class="p-1">
-                    <StatCheck v-if="statCheck" :statCheck="statCheck" />
-
-                    <div 
-                      v-if="chats && user" 
-                      class="scroll-container"
-                    >
-                      <div
-                        v-for="chat in chats.message"
-                        :key="chat.index"
-                        class="my-1"
-                      >
-                          <div>
-                            <span 
-                              class="message"
-                              :class="(chat.userId == user._id ? 'current-user':'')"
-                            >
-                              {{ chat.message }}
-                            </span>
-                          </div>
-                      </div>
-                    </div>
-
-                    <div class="card-footer">
-                      <form class="send-form" @submit.prevent="formSubmit" enctype="multipart/form-data">
-                        <input type="text" v-model="form.text" class=""
-                            placeholder="Message" required>
-                        <button type="submit">
-                          <i class="far fa-paper-plane"></i>
-                        </button>
-                      </form>
-                    </div>
-                </div>
+              <div class="user_info">
+                <span>Chat with {{ friendData.name }}</span>
+                <p v-if="chats">{{ chats.message.length }} Messages</p>
               </div>
+            </div>
+            <span @click.prevent="toggleMenu" id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>
+            <div class="menu-toggle action_menu">
+              <ul>
+                <li>
+                  <i class="fas fa-user-circle"></i> View profile
+                </li>
+                <li><i class="fas fa-users"></i> View timeline</li>
+              </ul>
+            </div>
           </div>
 
+          <div v-if="chats" class="card-body scroll-container msg_card_body">
+            <StatCheck v-if="statCheck" :statCheck="statCheck" />
+            <div
+              v-for="chat in chats.message"
+              :key="chat.index"
+              class="my-1"
+            >
+              <div 
+                v-if="chat.userId != user._id"
+                class="d-flex justify-content-start mb-4"
+              >
+                <div class="img_cont_msg">
+                  <img :src="friendData.photo" class="rounded-circle user_img_msg">
+                </div>
+                <div class="msg_cotainer">
+                  {{ chat.message }}
+                  <span class="msg_time">
+                    {{ getTime(chat.createdAt) }}, {{ getDate(chat.createdAt) }}
+                  </span>
+                </div>
+              </div>
+
+              <div 
+                v-else
+                class="d-flex justify-content-end mb-4"
+              >
+                <div class="msg_cotainer_send">
+                  {{ chat.message }}
+                  <span class="msg_time_send">
+                    <span v-if="chat.createdAt">
+                      {{ getTime(chat.createdAt) }}, {{ getDate(chat.createdAt) }}
+                    </span>
+                    <span v-else>Now</span>
+                  </span>
+                </div>
+                <div class="img_cont_msg">
+                  <img :src="user.photo" class="rounded-circle user_img_msg">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="card-body scroll-container msg_card_body">
+            <span class="text-white">
+              Hello there, start a conversation with {{ friendData.name }} now 
+              <i class="fas fa-laugh-wink"></i>
+            </span>
+          </div>
+
+          <div class="card-footer">
+            <form @submit.prevent="formSubmit" class="input-group">
+              <div class="input-group-append">
+                <span class="input-group-text attach_btn"><i class="fas fa-envelope"></i></span>
+              </div>
+              <textarea v-model="form.text" class="form-control type_msg" placeholder="Type your message..." required></textarea>
+              <button class="form-button input-group-append">
+                <span class="input-group-text send_btn"><i class="far fa-paper-plane"></i></span>
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
   </div>
   </template>
@@ -69,8 +110,8 @@ export default {
   },
   props: ['id'],
   setup(props) {
-      // Form functionality
     const chats = ref(null)
+    const friendData = ref(null)
     const user = ref(null)
     const form = ref({
       text: ''
@@ -79,11 +120,6 @@ export default {
       status: '',
       err: ''
     })
-
-    const jumpToButtom = () => {
-      let element = document.getElementsByClassName("scroll-container")
-      element.scrollTop = element.scrollHeight
-    }
 
     const store = useStore()
 
@@ -95,14 +131,15 @@ export default {
 
       statCheck.value.status = await store.getters.getPostsState
       user.value = await store.getters.user
-      chats.value = await store.getters.chats
-      if (chats.value != null) {
-        jumpToButtom()
+      chats.value = await store.getters.chats.chat
+      friendData.value = await store.getters.chats.friendData
+      
+      if (await chats.value && await user.value) {
+        stickToButtom()
       }
     })
 
     const formSubmit = async () => {
-      // Send Post
         const formData = {
           friendId: props.id,
           message: form.value.text
@@ -111,12 +148,15 @@ export default {
         statCheck.value.err = ''
         const res = await store.dispatch('saveChat', formData)
         
+        if (chats.value === null) chats.value = { message: [] }
         chats.value.message.push({
           userId: user.value._id,
           message: form.value.text
         })
         form.value.text = ''
-        jumpToButtom()
+        setTimeout(() => {
+          stickToButtom()
+        }, 500)
   
         if (res.success === true) {
           statCheck.value.status = res.msg
@@ -129,77 +169,235 @@ export default {
         }
     }
 
+    const toggleMenu = () => {
+      let element = document.getElementsByClassName("menu-toggle")[0]
+      element.classList.toggle('action_menu')
+    }
+    const stickToButtom = () => {
+      let element = document.getElementsByClassName("scroll-container")[0]
+      element.scrollTop = element.scrollHeight
+    }
+    const getDate = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(0, 10)
+    }
+    const getTime = (datetime) =>{
+        const newDate = new Date(datetime).toString()
+        return newDate.substring(16, 21)
+    }
+
 
     return {
       form,
       formSubmit,
       statCheck,
       chats,
-      user
+      user,
+      friendData,
+      toggleMenu,
+      getDate,
+      getTime
     }
   }
 }
 </script>
 
 <style scoped>
-.scroll-container {
-  width: 100%;
-  height: 400px;
-  overflow-y: scroll;
-  scroll-behavior: smooth;
+
+#body, .card-header, .card-footer {
+  background: #7F7FD5;
+  background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+  background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
 }
 
-.message {
-  border-radius: 5px;
-  margin: 5px;
-  padding: 3px 7px;
-  font-size: 14px;
-  background: #e2e2e2;
-  color: #252525;
-  flex-direction: column;
+.chat{
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  .card{
+    height: 500px;
+    border-radius: 15px !important;
+    background-color: rgba(0,0,0,0.4) !important;
+    box-shadow: 0px 4px 10px gray;
+  }
+  .card-body {
+    margin-bottom: 60px;
+  }
+  .msg_card_body{
+    overflow-y: auto;
+  }
+  .card-header{
+    border-radius: 15px 15px 0 0 !important;
+    border-bottom: 1px solid #fff !important;
+  }
+  .card-footer{
+    border-radius: 0 0 15px 15px !important;
+    border-top: 0 !important;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
-
-.current-user {
-  justify-content: flex-end;
-  text-align: right;
-  background: #4766ee;
-  color: #fff;
+  .container{
+    align-content: center;
+  }
+  .type_msg{
+    background-color: rgba(0,0,0,0.3) !important;
+    border:0 !important;
+    color:white !important;
+    height: 60px !important;
+    overflow-y: auto;
+  }
+  .type_msg:focus{
+      box-shadow:none !important;
+      outline:0px !important;
+  }
+  .attach_btn{
+    border-radius: 15px 0 0 15px !important;
+    background-color: rgba(0,0,0,0.3) !important;
+    border:0 !important;
+    color: white !important;
+    cursor: pointer;
+  }
+  .send_btn{
+    border-radius: 0 15px 15px 0 !important;
+    background-color: transparent !important;
+    border:0 !important;
+    color: white !important;
+    cursor: pointer;
+  }
+  .user_img{
+    height: 70px;
+    width: 70px;
+    border:1.5px solid #f5f6fa;
+  
+  }
+  .user_img_msg{
+    height: 40px;
+    width: 40px;
+    border:1.5px solid #f5f6fa;
+  
+  }
+.img_cont{
+    position: relative;
+    height: 70px;
+    width: 70px;
 }
-
-.flex {
-  display: flex;
+.img_cont_msg{
+    height: 40px;
+    width: 40px;
 }
-
-.send-form {
-  display: flex;
+.online_icon{
+  position: absolute;
+  height: 15px;
+  width:15px;
+  background-color: #4cd137;
+  border-radius: 50%;
+  bottom: 0.2em;
+  right: 0.4em;
+  border:1.5px solid white;
 }
-
-.send-form input[type="text"] {
-  flex: 1 1 100%;
-  appearance: none;
-  border: none;
-  outline: none;
-  background: none;
-  display: block;
+.user_info{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 15px;
+}
+.user_info span{
+  font-size: 20px;
+  color: white;
+}
+.user_info p{
+font-size: 10px;
+color: rgba(255,255,255,0.6);
+}
+.msg_cotainer{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 10px;
+  border-radius: 25px;
+  background-color: #82ccdd;
+  padding: 10px;
+  position: relative;
+}
+.msg_cotainer_send{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 10px;
+  border-radius: 25px;
+  background-color: #78e08f;
+  padding: 10px;
+  position: relative;
+}
+.msg_time{
+  position: absolute;
+  left: 0;
+  bottom: -15px;
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.msg_time_send{
+  position: absolute;
+  right:0;
+  bottom: -15px;
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.msg_head{
+  position: relative;
+}
+#action_menu_btn{
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+}
+.action_menu{
+  z-index: 1;
+  position: absolute;
+  padding: 15px 0;
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  border-radius: 15px;
+  top: 30px;
+  right: 15px;
+  display: none;
+}
+.action_menu ul{
+  list-style: none;
+  padding: 0;
+margin: 0;
+}
+.action_menu ul li{
   width: 100%;
   padding: 10px 15px;
-  border-radius: 8px 0 0 8px;
-  color: #333;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  background-color: #f3f3f3;
-  transition: 0.4s time;
+  margin-bottom: 5px;
 }
+.action_menu ul li i{
+  padding-right: 10px;
 
-.send-form button {
+}
+.action_menu ul li:hover{
+  cursor: pointer;
+  background-color: rgba(0,0,0,0.2);
+}
+.form-button {
   appearance: none;
   border: none;
   outline: none;
-  background: none;
+  background-color: rgba(0,0,0,0.3) !important;
   display: block;
   padding: 10px 15px;
   border-radius: 0 8px 8px 0;
-  background-color: #372dc5;
   color: #fff;
   font-weight: 700;
 }
+@media(max-width: 576px){
+.contacts_card{
+  margin-bottom: 15px !important;
+}
+}
+	
 </style>

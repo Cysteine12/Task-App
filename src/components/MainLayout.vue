@@ -361,6 +361,7 @@ export default {
     const isLoggedIn = computed(() => store.getters.isLoggedIn)
     onMounted(async () => {
       if (isLoggedIn.value) {
+        sidebarToggle()
 
         await store.dispatch('getProfile')
   
