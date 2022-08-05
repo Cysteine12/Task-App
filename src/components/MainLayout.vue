@@ -337,7 +337,7 @@ export default {
   props: {
       header: {
           type: String,
-          default: 'Welcome'
+          default: ''
       }
   },
   setup() {
