@@ -32,8 +32,8 @@
                           </div>
                         </div>
                         <div>
-                          <div class="my-0 mx-0 font-small"> {{ getTime(chat.createdAt) }}</div>
-                          <div class="my-0 mx-0 font-small"> {{ getDate(chat.createdAt) }}</div>
+                          <div class="my-0 mx-0 font-small"> {{ getTime(chat.updatedAt) }}</div>
+                          <div class="my-0 mx-0 font-small"> {{ getDate(chat.updatedAt) }}</div>
                         </div>
                     </router-link>
                 </div>

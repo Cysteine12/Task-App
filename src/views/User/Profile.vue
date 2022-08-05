@@ -194,5 +194,13 @@ padding-right: 15px;
 
 font-size: 29px;
 }
+@media(max-width: 576px){
+.stats h6{
+  font-size: 13px;
+}
+.stats span{
+  font-size: 20px;
+}
+}
 
 </style>
