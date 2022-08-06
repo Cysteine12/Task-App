@@ -17,12 +17,18 @@
               </div>
             </div>
             <span @click.prevent="toggleMenu" id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>
-            <div class="menu-toggle action_menu">
+            <div class="action_menu menu-toggle">
               <ul>
-                <li>
-                  <i class="fas fa-user-circle"></i> View profile
-                </li>
-                <li><i class="fas fa-users"></i> View timeline</li>
+                <router-link :to="`/user/profile/${friendData._id}`">
+                  <li>
+                      <i class="fas fa-user-circle"></i> View Profile
+                  </li>
+                </router-link>
+                <router-link :to="`/user/timeline/${friendData._id}`">
+                  <li>
+                      <i class="fas fa-users"></i> View Timeline
+                  </li>
+                </router-link>
               </ul>
             </div>
           </div>
@@ -180,8 +186,8 @@ export default {
     }
 
     const toggleMenu = () => {
-      let element = document.getElementsByClassName("menu-toggle")[0]
-      element.classList.toggle('action_menu')
+      let element = document.getElementsByClassName("action_menu")[0]
+      element.classList.toggle('menu-toggle')
     }
     const stickToButtom = () => {
       let element = document.getElementsByClassName("scroll-container")[0]
@@ -368,8 +374,11 @@ color: rgba(255,255,255,0.6);
   cursor: pointer;
   font-size: 20px;
 }
+.menu-toggle {
+  display: none;
+}
 .action_menu{
-  z-index: 1;
+  z-index: 2;
   position: absolute;
   padding: 15px 0;
   background-color: rgba(0,0,0,0.5);
@@ -377,17 +386,17 @@ color: rgba(255,255,255,0.6);
   border-radius: 15px;
   top: 30px;
   right: 15px;
-  display: none;
 }
 .action_menu ul{
   list-style: none;
   padding: 0;
-margin: 0;
+  margin: 0;
 }
 .action_menu ul li{
   width: 100%;
   padding: 10px 15px;
   margin-bottom: 5px;
+  color: #fff;
 }
 .action_menu ul li i{
   padding-right: 10px;

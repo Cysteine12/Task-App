@@ -18,8 +18,8 @@
 
               <div class="mt-5 text-center">
                 <h4 class="mb-0">{{ user.name }}</h4>
-                <span class="text-muted d-block mb-2">{{ user.email }}</span>
-                <span class="text-muted d-block mb-2">0{{ user.phone }}</span>
+                <span class="text-muted d-block mb-2"><i class="fas fa-envelope"></i> {{ user.email }}</span>
+                <span class="text-muted d-block mb-2"><i class="fas fa-phone-alt"></i> 0{{ user.phone }}</span>
                 
                 <div class="d-flex justify-content-between align-items-center my-4 px-4">
 
@@ -38,14 +38,14 @@
 
                 </div>
                 <div class="my-2">
-                  <router-link to="/profile/edit" class="btn btn-primary btn-sm mr-2">
-                      Edit
+                  <router-link to="/profile/edit" class="btn btn-primary btn-sm mr-2 small">
+                      Edit <i class="fas fa-edit" aria-hidden="true"></i>
                   </router-link>
-                  <router-link to="/profile/edit-photo" class="btn btn-primary btn-sm mr-2">
-                      Photo
+                  <router-link to="/profile/edit-photo" class="btn btn-primary btn-sm mr-2 small">
+                      Photo <i class="fas fa-image" aria-hidden="true"></i>
                   </router-link>
-                  <button @click.prevent="deleteSubmit" class="btn btn-danger btn-sm">
-                      Delete
+                  <button @click.prevent="deleteSubmit" class="btn btn-danger btn-sm small">
+                      Delete <i class="far fa-trash-alt" aria-hidden="true"></i>
                   </button>
                 </div>
                 <StatCheck v-if="statCheck" :statCheck="statCheck" />
@@ -203,4 +203,8 @@ font-size: 29px;
 }
 }
 
+.small {
+  padding: 3px 5px;
+  font-size: 12px;
+}
 </style>

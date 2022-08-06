@@ -18,13 +18,13 @@
 
               <div class="mt-5 text-center">
                 <h4 class="mb-0">{{ user.name }}</h4>
-                <span class="text-muted d-block mb-2">{{ user.email }}</span>
-                <span class="text-muted d-block mb-2">0{{ user.phone }}</span>
-                <button v-if="showFollowButton" @click.prevent="followUser(user._id)" class="btn btn-success btn-sm mr-2 shadow">
-                    {{ followButton }}
+                <span class="text-muted d-block mb-2"><i class="fas fa-envelope"></i> {{ user.email }}</span>
+                <span class="text-muted d-block mb-2"><i class="fas fa-phone-alt"></i> 0{{ user.phone }}</span>
+                <button v-if="showFollowButton" @click.prevent="followUser(user._id)" class="btn btn-success btn-sm mr-2 shadow small">
+                    {{ followButton }} <i class="far fa-check-circle"></i>
                 </button>
-                <button v-else-if="!showFollowButton" @click.prevent="unfollowUser(user._id)" class="btn btn-success btn-sm mr-2 shadow">
-                    {{ followButton }}
+                <button v-else-if="!showFollowButton" @click.prevent="unfollowUser(user._id)" class="btn btn-success btn-sm mr-2 shadow small">
+                    {{ followButton }} <i class="fas fa-check-circle"></i>
                 </button>
                 
                 <div class="d-flex justify-content-center align-items-center my-4 px-4">
@@ -40,14 +40,13 @@
 
                 </div>
                 <div class="my-2">
-                  <router-link :to="'/chat/' + user._id" class="btn btn-primary btn-sm mr-2 shadow">
-                      Message
+                  <router-link :to="'/chat/' + user._id" class="btn btn-primary btn-sm mr-2 shadow small">
+                      Message <i class="fas fa-comment-dots"></i>
                   </router-link>
-                  <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-sm shadow">
-                      View Timeline
+                  <router-link :to="'/user/timeline/' + user._id" class="btn btn-primary btn-sm shadow small">
+                      View Timeline <i class="fas fa-folder-open"></i>
                   </router-link>
                 </div>
-                <StatCheck v-if="statCheck" :statCheck="statCheck" />
               </div>
             </div>
           </div>
@@ -91,15 +90,13 @@ export default {
 
     const followUser = async (id) => {
         followButton.value = 'Saving...'
-        statCheck.value.status = ''
         const data = {
             action: 'follow',
             following: id
         }
         const res = await store.dispatch('followUser', data)
         if (res.success) {
-            statCheck.value.status = res.msg
-            followButton.value = 'Unfollow'
+            followButton.value = 'Following'
             showFollowButton.value = false
         } else {
             followButton.value = res.err
@@ -107,14 +104,12 @@ export default {
     }
     const unfollowUser = async (id) => {
         followButton.value = 'Saving...'
-        statCheck.value.status = ''
         const data = {
             action: 'unfollow',
             following: id
         }
         const res = await store.dispatch('followUser', data)
         if (res.success) {
-            statCheck.value.status = res.msg
             followButton.value = 'Follow'
             showFollowButton.value = true
         } else {
@@ -207,6 +202,10 @@ padding-right: 15px;
 .stats span{
 
 font-size: 29px;
+}
+.small {
+  padding: 3px 5px;
+  font-size: 12px;
 }
 
 </style>
