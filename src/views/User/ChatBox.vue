@@ -162,7 +162,7 @@ export default {
 
         const formData = {
           friendId: props.id,
-          message: chats.value.message[chats.value.message.length - 1]
+          message: chats.value.message[chats.value.message.length - 1].message
         }
         const res = await store.dispatch('saveChat', formData)
           
