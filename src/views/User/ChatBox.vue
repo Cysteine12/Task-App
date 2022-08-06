@@ -60,7 +60,10 @@
                     >
                       {{ getTime(chat.createdAt) }}, {{ getDate(chat.createdAt) }}
                     </span>
-                    <span v-else>Now</span>
+                    <span v-else>
+                      <span v-if="chat.createdAt">{{ chat.createdAt }}</span>
+                      <span v-else>Now</span>
+                    </span>
                   </span>
                 </div>
                 <div class="img_cont_msg">
