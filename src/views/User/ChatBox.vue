@@ -28,7 +28,6 @@
           </div>
 
           <div v-if="chats" class="card-body scroll-container msg_card_body">
-            <StatCheck v-if="statCheck" :statCheck="statCheck" />
             <div
               v-for="chat in chats.message"
               :key="chat.index"
@@ -56,7 +55,9 @@
                 <div class="msg_cotainer_send">
                   {{ chat.message }}
                   <span class="msg_time_send">
-                    <span v-if="chat.createdAt">
+                    <span 
+                      v-if="chat.createdAt && chat.createdAt !== 'Sending' && chat.createdAt !== 'Sent'"
+                    >
                       {{ getTime(chat.createdAt) }}, {{ getDate(chat.createdAt) }}
                     </span>
                     <span v-else>Now</span>
@@ -80,7 +81,11 @@
               <div class="input-group-append">
                 <span class="input-group-text attach_btn"><i class="fas fa-envelope"></i></span>
               </div>
-              <textarea v-model="form.text" class="form-control type_msg" placeholder="Type your message..." required></textarea>
+              <textarea 
+                v-model="form.text" 
+                class="form-control type_msg" placeholder="Type your message..." required
+              >
+              </textarea>
               <button class="form-button input-group-append">
                 <span class="input-group-text send_btn"><i class="far fa-paper-plane"></i></span>
               </button>
@@ -140,32 +145,34 @@ export default {
     })
 
     const formSubmit = async () => {
+
+        if (chats.value === null) chats.value = { message: [] }
+        chats.value.message.push({
+          userId: user.value._id,
+          message: form.value.text,
+          createdAt: 'Sending'
+        })
+        setTimeout(() => {
+          stickToButtom()
+        }, 500)
+
         const formData = {
           friendId: props.id,
           message: form.value.text
         }
-        statCheck.value.status = 'Sending...'
-        statCheck.value.err = ''
         const res = await store.dispatch('saveChat', formData)
-        
-        if (chats.value === null) chats.value = { message: [] }
-        chats.value.message.push({
-          userId: user.value._id,
-          message: form.value.text
-        })
         form.value.text = ''
-        setTimeout(() => {
-          stickToButtom()
-        }, 500)
-  
+          
         if (res.success === true) {
-          statCheck.value.status = res.msg
+          chats.value.message[chats.value.message.length - 1].createdAt = 'Sent'
+
           setTimeout(() => {
-            statCheck.value.status = ''
+            chats.value.message[chats.value.message.length - 1].createdAt = null
           }, 3000)
         } else {
-          statCheck.value.status = await store.getters.authState
-          statCheck.value.err = res.err
+          chats.value.message[
+            chats.value.message.length - 1
+          ].createdAt = await store.getters.authState + ' ' + res.err
         }
     }
 
