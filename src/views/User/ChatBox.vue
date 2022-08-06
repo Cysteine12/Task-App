@@ -155,16 +155,16 @@ export default {
           message: form.value.text,
           createdAt: 'Sending'
         })
+        form.value.text = ''
         setTimeout(() => {
           stickToButtom()
         }, 500)
 
         const formData = {
           friendId: props.id,
-          message: form.value.text
+          message: chats.value.message[chats.value.message.length - 1]
         }
         const res = await store.dispatch('saveChat', formData)
-        form.value.text = ''
           
         if (res.success === true) {
           chats.value.message[chats.value.message.length - 1].createdAt = 'Sent'
