@@ -33,7 +33,7 @@
             </div>
           </div>
 
-          <div v-if="chats" class="card-body scroll-container msg_card_body">
+          <div v-if="chats && user" class="card-body scroll-container msg_card_body">
             <div
               v-for="chat in chats.message"
               :key="chat.index"

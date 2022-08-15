@@ -1,18 +1,18 @@
 <template>
-  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-      aria-hidden="false">
+  <div class="alert fade show" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true" style="display: block; padding-right: 17px;">
       <div class="modal-dialog" role="document">
           <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                  <h5 class="modal-title" id="exampleModalLabel">{{ alertData.header }}</h5>
+                  <button @click.prevent="$emit('closeAlert')" class="close" type="button" data-dismiss="alert" aria-label="Close">
                       <span aria-hidden="true">×</span>
                   </button>
               </div>
-              <div class="modal-body">Select "lgiiiii" below if you are ready to end your current session.</div>
+              <div class="modal-body">{{ alertData.body }}</div>
               <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                  <button @click.prevent="buttonAction" class="btn btn-primary" data-dismiss="modal">Logout</button>
+                  <button @click.prevent="$emit('closeAlert')" class="btn btn-secondary" type="button" data-dismiss="alert">Cancel</button>
+                  <button @click.prevent="$emit('successAlert')" class="btn btn-primary" data-dismiss="modal">{{ alertData.button }}</button>
               </div>
           </div>
       </div>
@@ -20,26 +20,26 @@
 </template>
 
 <script>
-import { ref } from '@vue/reactivity'
 export default {
  name: 'Alert',
-  props: {},
-  setup(props) {
-
-    const user = ref(null)
-
-    const buttonAction = async () => {
-      console.log('hello');
+  props: {
+    alertData: {
+      type: Object,
+      required: true
     }
+  },
+  setup() {
 
     return {
-      user,
-      buttonAction
     }
   }
 }
 </script>
 
 <style>
+.alert {
+  position: absolute;
+  top: 0;
 
+}
 </style>

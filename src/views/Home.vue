@@ -78,17 +78,25 @@
           </div>
 
           <!-- Approach -->
-          <div v-if="posts.length > 0">
-            <Post 
-              v-for="post in posts"
-              :key="post.index"
-              :post="post"
-              :showbutton="trueM"
-            />
-          </div>
-          <div v-else class="card shadow mb-4">
-            <div class="card-header py-3">No Posts on your timeline yet. Follow other users and create your posts now</div>
-          </div>
+          <Suspence>
+            <template #default>
+                <div v-if="posts.length > 0">
+                    <Post 
+                    v-for="post in posts"
+                    :key="post.index"
+                    :post="post"
+                    :showbutton="trueM"
+                    />
+                </div>
+                <div v-else class="card shadow mb-4">
+                    <div class="card-header py-3">No Posts on your timeline yet. Follow other users and create your posts now</div>
+                </div>
+            </template>
+            <template #fallback>
+                <img src="img/preloader.gif" alt="Loading ata...">
+            </template>
+          </Suspence>
+          
           <br><br>
 
           <div v-if="pagination.totalCount">

@@ -44,7 +44,7 @@
                   <router-link to="/profile/edit-photo" class="btn btn-primary btn-sm mr-2 small">
                       Photo <i class="fas fa-image" aria-hidden="true"></i>
                   </router-link>
-                  <button @click.prevent="deleteSubmit" class="btn btn-danger btn-sm small">
+                  <button @click.prevent="showAlertF" class="btn btn-danger btn-sm small">
                       Delete <i class="far fa-trash-alt" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -52,24 +52,13 @@
               </div>
             </div>
           </div>
-          <div class="modal fade">
-              <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">×</span>
-                          </button>
-                      </div>
-                      <div class="modal-body">Select "lgiiiii" below if you are ready to end your current session.</div>
-                      <div class="modal-footer">
-                          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                          <button @click.prevent="buttonAction" class="btn btn-primary" data-dismiss="modal">Logout</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-          <!-- <Alert /> -->
+
+          <Alert 
+            v-if="alertData.show" 
+            :alertData="alertData" 
+            @success-alert="deleteSubmit" 
+            @close-alert="alertData.show = false" 
+          />
       </div>
   </div>
   </template>
@@ -85,14 +74,19 @@ import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 export default {
- name: 'Home',
+ name: 'Profile',
   components: {
     MainLayout,
     StatCheck,
     Alert
   },
   setup() {
-
+    const alertData = ref({
+      show: false,
+      header: 'Delete This Account?',
+      body: 'Select "Delete" below if you are ready to delete your account.',
+      button: 'Delete'
+    })
     const user = ref(null)
     const statCheck = ref({
       status: '',
@@ -110,8 +104,16 @@ export default {
     const deleteSubmit = async () => {
       await store.dispatch('deleteProfile')
     }
+    const showAlertF = () => {
+      alertData.value.show = true
+      
+      let element = document.getElementsByTagName('body')[0]
+      element.classList.toggle('modal-open')
+    }
 
     return {
+      alertData,
+      showAlertF,
       statCheck,
       user,
       deleteSubmit
