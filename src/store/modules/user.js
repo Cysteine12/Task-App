@@ -1,6 +1,6 @@
 import axios from 'axios'
 import router from '../../router'
-const API = process.env.VUE_APP_API_URL1
+const API = process.env.VUE_APP_API_URL
 
 const state = () => ({
     posts: [],

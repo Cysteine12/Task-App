@@ -1,5 +1,5 @@
 import axios from 'axios'
-const API = process.env.VUE_APP_API_URL1
+const API = process.env.VUE_APP_API_URL
 
 const state = () => ({
     post: [],
