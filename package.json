@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "serve": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build"
+  },
+  "engines": {
+    "npm": "<=9.4.2",
+    "node": "<=16.15.0"
   },
   "dependencies": {
     "axios": "^0.25.0",
